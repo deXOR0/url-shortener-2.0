@@ -10,16 +10,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model users {
+model User {
   id         String   @id @default(uuid())
   email      String   @unique
   password   String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  urls       urls[]
+  urls       Url[]
+
+  @@map("users")
 }
 
-model urls {
+model Url {
   id         String   @id @default(uuid())
   creator_id String
   url        String
@@ -28,5 +30,7 @@ model urls {
   clicks     Int      @default(0)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  user       users    @relation(fields: [creator_id], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [creator_id], references: [id], onDelete: Cascade)
+
+  @@map("urls")
 }
