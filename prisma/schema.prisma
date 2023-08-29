@@ -25,7 +25,7 @@ model Url {
   id         String   @id @default(uuid())
   creator_id String
   url        String
-  short_url  String
+  short_url  String   @unique
   password   String?
   clicks     Int      @default(0)
   created_at DateTime @default(now())
