@@ -47,17 +47,6 @@ export class UserService {
 
         const hashedPassword = await hash(newPassword, 10);
 
-        try {
-            await this.userRepository.updatePassword(id, hashedPassword);
-
-            return {
-                status: 'success',
-                message: 'successfully updated password',
-            };
-        } catch (err) {
-            return response.status(err.status).json({
-                err,
-            });
-        }
+        return await this.userRepository.updatePassword(id, hashedPassword);
     }
 }
