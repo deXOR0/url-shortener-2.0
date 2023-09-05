@@ -15,7 +15,7 @@ export class ShortUrlRepository {
     }
 
     async create(id: string, url: string, shortUrl: string, password: string) {
-        return this.prismaService.url.create({
+        return await this.prismaService.url.create({
             data: {
                 url,
                 short_url: shortUrl,
@@ -25,6 +25,33 @@ export class ShortUrlRepository {
                         id,
                     },
                 },
+            },
+        });
+    }
+
+    async getAllShortUrls(creatorId: string) {
+        return await this.prismaService.url.findMany({
+            select: {
+                id: true,
+                url: true,
+                short_url: true,
+                clicks: true,
+                created_at: true,
+                updated_at: true,
+            },
+            where: {
+                creator_id: creatorId,
+            },
+        });
+    }
+
+    async addClicks(shortUrl: string, clicks: Number) {
+        return await this.prismaService.url.update({
+            data: {
+                clicks: +clicks + 1,
+            },
+            where: {
+                short_url: shortUrl,
             },
         });
     }

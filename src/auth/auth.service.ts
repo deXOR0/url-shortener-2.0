@@ -4,7 +4,6 @@ import {
     UnauthorizedException,
 } from '@nestjs/common';
 import { AuthDTO } from './dto/create-auth.dto';
-import { AuthRepository } from './auth.repository';
 import { hash, compare } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from '../user/user.repository';
@@ -12,7 +11,6 @@ import { UserRepository } from '../user/user.repository';
 @Injectable()
 export class AuthService {
     constructor(
-        private readonly authRepository: AuthRepository,
         private readonly userRepository: UserRepository,
         private readonly jwtService: JwtService,
     ) {}
@@ -23,7 +21,7 @@ export class AuthService {
         const hashedPassword = await hash(password, 10);
 
         const { id, created_at, updated_at } =
-            await this.authRepository.register(email, hashedPassword);
+            await this.userRepository.register(email, hashedPassword);
 
         return {
             data: {

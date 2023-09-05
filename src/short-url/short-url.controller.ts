@@ -15,6 +15,7 @@ import { ShortUrlService } from './short-url.service';
 import { CreateShortUrlDto } from './dto/create-short-url.dto';
 import { UpdateShortUrlDto } from './dto/update-short-url.dto';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
+import { GetShortUrlDto } from './dto/get-short-url.dto';
 
 @Controller('short-url')
 export class ShortUrlController {
@@ -28,13 +29,24 @@ export class ShortUrlController {
     }
 
     @Get()
-    findAll() {
-        return this.shortUrlService.findAll();
+    @UsePipes(ValidationPipe)
+    @UseGuards(JwtAuthGuard)
+    findAll(@Request() req) {
+        return this.shortUrlService.findAll(req);
     }
 
-    @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.shortUrlService.findOne(+id);
+    @Get(':shortUrl/detail')
+    findOne(@Param('shortUrl') shortUrl: string) {
+        return this.shortUrlService.findOne(shortUrl);
+    }
+
+    @Get(':shortUrl')
+    @UsePipes(ValidationPipe)
+    async getUrl(
+        @Param('shortUrl') shortUrl: string,
+        @Body() getShortUrlDto: GetShortUrlDto,
+    ) {
+        return await this.shortUrlService.getUrl(shortUrl, getShortUrlDto);
     }
 
     @Patch(':id')

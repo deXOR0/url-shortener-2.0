@@ -6,6 +6,15 @@ import { User } from '@prisma/client';
 export class UserRepository {
     constructor(private readonly prismaService: PrismaService) {}
 
+    async register(email: string, password: string): Promise<User> {
+        return this.prismaService.user.create({
+            data: {
+                email: email,
+                password: password,
+            },
+        });
+    }
+
     async getByEmail(email: string): Promise<User> {
         return this.prismaService.user.findUnique({
             where: {
