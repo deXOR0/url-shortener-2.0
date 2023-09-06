@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { User, Url } from '@prisma/client';
+import { UpdateShortUrlDto } from './dto/update-short-url.dto';
 
 @Injectable()
 export class ShortUrlRepository {
@@ -52,6 +53,31 @@ export class ShortUrlRepository {
             },
             where: {
                 short_url: shortUrl,
+            },
+        });
+    }
+
+    async updateShortUrl(
+        userId: string,
+        shortUrl: string,
+        updateShortUrlDto: UpdateShortUrlDto,
+    ) {
+        return await this.prismaService.url.update({
+            data: {
+                ...updateShortUrlDto,
+            },
+            where: {
+                short_url: shortUrl,
+                creator_id: userId,
+            },
+        });
+    }
+
+    async deleteShortUrl(userId: string, shortUrl: string) {
+        return await this.prismaService.url.delete({
+            where: {
+                short_url: shortUrl,
+                creator_id: userId,
             },
         });
     }

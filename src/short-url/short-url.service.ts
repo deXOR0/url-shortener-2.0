@@ -33,7 +33,6 @@ export class ShortUrlService {
 
     async create(req, createShortUrlDto: CreateShortUrlDto) {
         const { user } = req;
-        const { id } = user;
         let { url, shortUrl, password } = createShortUrlDto;
 
         if (!shortUrl) {
@@ -53,7 +52,7 @@ export class ShortUrlService {
         }
 
         return await this.shortUrlRepository.create(
-            id,
+            user.id,
             url,
             shortUrl,
             password,
@@ -62,8 +61,9 @@ export class ShortUrlService {
 
     async findAll(req) {
         const { user } = req;
-        const { id } = user;
-        const shortUrls = await this.shortUrlRepository.getAllShortUrls(id);
+        const shortUrls = await this.shortUrlRepository.getAllShortUrls(
+            user.id,
+        );
 
         return {
             data: {
@@ -79,8 +79,13 @@ export class ShortUrlService {
         };
     }
 
-    async findOne(shortUrl: string) {
+    async findOne(req, shortUrl: string) {
+        const { user } = req;
         const url = await this.shortUrlRepository.getShortUrl(shortUrl);
+
+        if (user.id != url.creator_id) {
+            throw new UnauthorizedException();
+        }
 
         return {
             data: await this.maskShortUrlPassword(url),
@@ -110,11 +115,28 @@ export class ShortUrlService {
         return { data: { url: url.url } };
     }
 
-    update(id: number, updateShortUrlDto: UpdateShortUrlDto) {
-        return `This action updates a #${id} shortUrl`;
+    async update(req, shortUrl: string, updateShortUrlDto: UpdateShortUrlDto) {
+        const { user } = req;
+
+        if (updateShortUrlDto.password) {
+            updateShortUrlDto.password = await hash(
+                updateShortUrlDto.password,
+                10,
+            );
+        }
+
+        const url = await this.shortUrlRepository.updateShortUrl(
+            user.id,
+            shortUrl,
+            updateShortUrlDto,
+        );
+
+        return await this.maskShortUrlPassword(url);
     }
 
-    remove(id: number) {
-        return `This action removes a #${id} shortUrl`;
+    async remove(req, shortUrl: string) {
+        const { user } = req;
+
+        return await this.shortUrlRepository.deleteShortUrl(user.id, shortUrl);
     }
 }

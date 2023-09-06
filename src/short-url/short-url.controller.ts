@@ -10,6 +10,7 @@ import {
     ValidationPipe,
     UseGuards,
     Request,
+    Put,
 } from '@nestjs/common';
 import { ShortUrlService } from './short-url.service';
 import { CreateShortUrlDto } from './dto/create-short-url.dto';
@@ -36,8 +37,9 @@ export class ShortUrlController {
     }
 
     @Get(':shortUrl/detail')
-    findOne(@Param('shortUrl') shortUrl: string) {
-        return this.shortUrlService.findOne(shortUrl);
+    @UseGuards(JwtAuthGuard)
+    findOne(@Request() req, @Param('shortUrl') shortUrl: string) {
+        return this.shortUrlService.findOne(req, shortUrl);
     }
 
     @Get(':shortUrl')
@@ -49,16 +51,24 @@ export class ShortUrlController {
         return await this.shortUrlService.getUrl(shortUrl, getShortUrlDto);
     }
 
-    @Patch(':id')
-    update(
-        @Param('id') id: string,
+    @Put(':shortUrl')
+    @UsePipes(ValidationPipe)
+    @UseGuards(JwtAuthGuard)
+    async update(
+        @Request() req,
+        @Param('shortUrl') shortUrl: string,
         @Body() updateShortUrlDto: UpdateShortUrlDto,
     ) {
-        return this.shortUrlService.update(+id, updateShortUrlDto);
+        return await this.shortUrlService.update(
+            req,
+            shortUrl,
+            updateShortUrlDto,
+        );
     }
 
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.shortUrlService.remove(+id);
+    @Delete(':shortUrl')
+    @UseGuards(JwtAuthGuard)
+    async remove(@Request() req, @Param('shortUrl') shortUrl: string) {
+        return await this.shortUrlService.remove(req, shortUrl);
     }
 }
